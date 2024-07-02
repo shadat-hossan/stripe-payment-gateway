@@ -1,10 +1,22 @@
+"use client";
+import { useEffect } from "react";
 import Image from "next/image";
-import "./products.css"
+import "./products.css";
 import Link from "next/link";
+import axios from "axios";
 
 const productImage = "/assets/iPhone-14-Pro-Max.jpg";
 
+const fetchData = async () => {
+  const res = await axios("https://fakestoreapi.com/products");
+  console.log("Response Data", res);
+};
+
 const Products = () => {
+  useEffect(() => {
+    fetchData();
+  }, []);
+
   return (
     <div className="row product">
       <div className="all-products">
