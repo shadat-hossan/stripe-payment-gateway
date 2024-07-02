@@ -1,0 +1,52 @@
+.navbar{
+    width: 100%;
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #999;
+}
+
+.stripeLogo .image{
+    width: 130px;
+    height: 50px;
+}
+
+.navigatinItem{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    list-style: none;
+    column-gap: 5px;
+}
+
+.navigatinItem li .link{
+    padding: 10px 14px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: 400;
+    font-size: 17px;
+    transition: all .2s;
+}
+
+.navigatinItem li .link:hover{
+    background: #d2d7fd;
+    color: #3146ff;
+}
+
+.navigatinItem .signUpLink{
+    padding: 10px 14px;
+    border: none;
+    background: #3146ff;
+    color: #fff;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all .2s;
+    text-decoration: none;
+    border: 1px solid #3146ff;
+}
+
+.navigatinItem .signUpLink:hover {
+    background: #ffffff;
+    color: #000000;
+}
