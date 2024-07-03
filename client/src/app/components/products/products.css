@@ -52,6 +52,8 @@
 
 .product-control-btn .droductBtnLink{
     padding: 10px 14px;
+    border: none;
+    cursor: pointer;
     background: #3146ff;
     display: flex;
     align-items: center;
