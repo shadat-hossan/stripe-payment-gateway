@@ -1,8 +1,12 @@
 const express = require("express");
 const stripe = require("stripe")(process.env.STRYPE_KEY);
 const UserCheckoutSession = require("../models/checkout.model");
+const bodyParser = require("body-parser");
 
 const route = express.Router();
+
+// Middleware to parse raw request body for webhooks
+route.post('/webhook', bodyParser.raw({ type: 'application/json' }));
 
 route.post("/checkout", async (req, res) => {
     try {
@@ -33,20 +37,21 @@ route.post("/checkout", async (req, res) => {
     }
 });
 
-let endpointSecret = process.env.STRIPE_WEBHOOK;
+const endpointSecret = process.env.STRIPE_WEBHOOK;
 
-route.post('/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
+route.post('/webhook', async (req, res) => {
     const sig = req.headers['stripe-signature'];
 
-    let event;
-
     try {
-        if (endpointSecret) {
-            event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
-            console.log('Webhook verified.');
-        } else {
-            event = req.body;
+        let event;
+
+        if (!endpointSecret) {
+            throw new Error('Stripe webhook secret not configured.');
         }
+
+        // Use the raw body instead of parsed body
+        event = stripe.webhooks.constructEvent(req.rawBody, sig, endpointSecret);
+        console.log('Webhook verified.');
 
         const data = event.data.object;
         const eventType = event.type;
@@ -56,13 +61,17 @@ route.post('/webhook', express.raw({ type: 'application/json' }), async (req, re
 
         switch (eventType) {
             case 'checkout.session.completed':
+                const session = await stripe.checkout.sessions.retrieve(data.id, {
+                    expand: ['line_items'],
+                });
+
                 const sessionData = {
-                    sessionId: data.id,
-                    items: data.line_items?.map(item => ({
+                    sessionId: session.id,
+                    items: session.line_items.data.map(item => ({
                         name: item.description,
-                        price: item.amount_total / item.quantity,
+                        price: item.amount_subtotal / item.quantity,
                         quantity: item.quantity,
-                    })) || [],
+                    })),
                 };
 
                 const userCheckoutSession = new UserCheckoutSession(sessionData);
@@ -70,16 +79,13 @@ route.post('/webhook', express.raw({ type: 'application/json' }), async (req, re
 
                 console.log(`Checkout Session Completed: ${JSON.stringify(sessionData)}`);
                 break;
-            case 'another.event.type':
-                console.log(`Other Event Data: ${JSON.stringify(data)}`);
-                break;
             default:
                 console.log(`Unhandled event type: ${eventType}`);
         }
 
         res.send().end();
     } catch (err) {
-        console.log(`Webhook Error: ${err.message}`);
+        console.error(`Webhook Error: ${err.message}`);
         res.status(400).send(`Webhook Error: ${err.message}`);
     }
 });
