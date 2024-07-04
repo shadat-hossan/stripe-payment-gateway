@@ -1,9 +1,9 @@
 const stripe = require("stripe")(process.env.STRYPE_KEY);
-
-const UserCheckoutSession = require("../models/checkout.model")
+const UserCheckoutSession = require("../models/checkout.model");
 
 const checkoutCotrol = async (req, res) => {
     try {
+        // Create a Stripe Checkout session
         const session = await stripe.checkout.sessions.create({
             payment_method_types: ["card"],
             mode: 'payment',
@@ -31,6 +31,7 @@ const checkoutCotrol = async (req, res) => {
         await newSession.save();
 
         res.status(200).send({ url: session.url });
+
     } catch (error) {
         res.status(500).send({ message: error.message });
     }

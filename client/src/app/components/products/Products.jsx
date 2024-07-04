@@ -25,7 +25,7 @@ const Products = () => {
     try {
       const { id, title, price, quantity = 1 } = item;
 
-      const res = await fetch("http://localhost:8080/checkout", {
+      const res = await fetch("http://localhost:8080/stripe/checkout", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -35,9 +35,9 @@ const Products = () => {
           items: [
             {
               id: id,
-              quantity: quantity,
-              price: price,
               name: title,
+              price: price,
+              quantity: quantity,
             },
           ],
         }),

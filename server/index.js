@@ -10,7 +10,7 @@ const DBURL = process.env.DB_URL;
 app.use(express.json());
 app.use(cors());
 
-app.use("/checkout", checkoutRoute);
+app.use("/stripe", checkoutRoute);
 
 
 const DBServer = async () => {
